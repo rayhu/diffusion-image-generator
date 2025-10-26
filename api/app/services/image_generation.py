@@ -33,6 +33,7 @@ class ImageGenerationService:
 
             if settings.device == "cuda" and torch.cuda.is_available():
                 self.pipe = self.pipe.to("cuda")
+                print("CUDA available, using GPU")
             else:
                 self.pipe = self.pipe.to("cpu")
                 print("CUDA not available, using CPU")

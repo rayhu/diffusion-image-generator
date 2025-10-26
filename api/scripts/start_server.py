@@ -31,6 +31,14 @@ def main():
             "--port",
             "8000",
             "--reload",
+            "--reload-exclude",
+            "generated-images/*",
+            "--reload-exclude",
+            "*.png",
+            "--reload-exclude",
+            "*.jpg",
+            "--reload-exclude",
+            "*.jpeg",
         ]
         subprocess.run(cmd, check=True)
 
