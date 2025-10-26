@@ -1,0 +1,48 @@
+repos:
+  # Python linting and formatting
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.0
+    hooks:
+      - id: ruff
+        args: [--fix]
+      - id: ruff-format
+
+  # Frontend linting and formatting
+  - repo: https://github.com/pre-commit/mirrors-eslint
+    rev: v8.57.0
+    hooks:
+      - id: eslint
+        files: \.(js|jsx|ts|tsx)$
+        additional_dependencies:
+          - eslint@^8.57.0
+          - eslint-config-next@^14.2.0
+          - @typescript-eslint/eslint-plugin@^6.21.0
+          - @typescript-eslint/parser@^6.21.0
+
+  - repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v3.2.0
+    hooks:
+      - id: prettier
+        files: \.(js|jsx|ts|tsx|json|css|md)$
+        additional_dependencies:
+          - prettier@^3.2.0
+          - prettier-plugin-tailwindcss@^0.5.9
+
+  # General hooks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-case-conflict
+      - id: check-json
+      - id: check-toml
+      - id: check-xml
+      - id: debug-statements
+      - id: detect-private-key
+      - id: mixed-line-ending
+      - id: check-docstring-first
+      - id: requirements-txt-fixer

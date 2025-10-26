@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  # Development overrides for API
+  api:
+    environment:
+      - DEBUG=true
+      - HOST=0.0.0.0
+      - PORT=8000
+    volumes:
+      - ./api:/app  # Mount source code for hot reload
+      - ./generated-images:/app/generated-images
+    command: ["uv", "run", "uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+
+  # Development overrides for Frontend
+  frontend:
+    environment:
+      - NODE_ENV=development
+      - REACT_APP_API_URL=http://localhost:8000
+    volumes:
+      - ./frontend:/app  # Mount source code for hot reload
+      - /app/node_modules  # Prevent overwriting node_modules
+    command: ["npm", "start"]
+
+  # Disable nginx in development
+  nginx:
+    profiles:
+      - production
