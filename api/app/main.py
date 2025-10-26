@@ -2,22 +2,40 @@
 FastAPI application for Stable Diffusion image generation.
 """
 
+import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.config import settings
+from app.core.config import (
+    API_ROOT,
+    ENV_FILE_PATH,
+    REPO_ROOT,
+    settings,
+)
 from app.routers import health, images
 from app.services.image_generation import image_service
+
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
     """Application lifespan manager."""
     # Startup
-    print(f"Starting {settings.app_name} v{settings.app_version}")
-    print("Loading Stable Diffusion model...")
+    logger.info("Starting %s v%s", settings.app_name, settings.app_version)
+    logger.info("Repository root: %s", REPO_ROOT)
+    logger.info("API root: %s", API_ROOT)
+    logger.info(
+        "Environment file: %s (exists=%s)",
+        ENV_FILE_PATH,
+        ENV_FILE_PATH.exists(),
+    )
+    logger.info("Images directory: %s", settings.images_dir)
+    logger.info("Loading Stable Diffusion model...")
 
     # Load the model in background
     await image_service.load_model()
@@ -25,7 +43,7 @@ async def lifespan(_app: FastAPI):
     yield
 
     # Shutdown
-    print("Shutting down application...")
+    logger.info("Shutting down application...")
 
 
 # Create FastAPI application

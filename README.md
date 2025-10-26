@@ -46,11 +46,22 @@ diffusion-ray-1/
 
 ## Quick Start
 
-### 1. Install Dependencies
+### 1. Configure Environment
+
+Copy the sample files and adjust values as needed:
+
+```bash
+cp api/.env.sample api/.env
+cp frontend/.env.sample frontend/.env
+```
+
+### 2. Install Dependencies
 
 **Backend (API):**
 ```bash
 cd api
+uv venv .venv            # One-time: create the local virtual environment
+source .venv/bin/activate
 uv sync
 ```
 
@@ -60,7 +71,7 @@ cd frontend
 npm install
 ```
 
-### 2. Start the Services
+### 3. Start the Services
 
 **Option A: Full Stack with Docker Compose (Recommended)**
 ```bash
@@ -72,6 +83,7 @@ docker-compose up -d
 ```bash
 # Terminal 1: Start API
 cd api
+source .venv/bin/activate
 uv sync --extra dev  # Install dev dependencies for linting
 uv run start-server
 
@@ -81,11 +93,12 @@ npm install
 npm run dev
 ```
 
-### 3. Code Quality
+### 4. Code Quality
 
 **API (Python):**
 ```bash
 cd api
+source .venv/bin/activate
 uv run lint          # Run linting
 uv run format         # Format code
 uv run type-check     # Type checking
@@ -111,7 +124,7 @@ pre-commit install
 pre-commit run --all-files
 ```
 
-### 3. Access the API
+### 5. Access the API
 - **API Documentation**: http://localhost:8000/docs
 - **Health Check**: http://localhost:8000/api/v1/health
 - **Root Endpoint**: http://localhost:8000/
@@ -159,7 +172,7 @@ GET /api/v1/images
 
 ## Configuration
 
-The application uses environment variables for configuration. Create a `.env` file:
+The application uses environment variables for configuration. Copy `api/.env.sample` to `api/.env` and update the values for your environment:
 
 ```bash
 DEBUG=true
@@ -167,8 +180,12 @@ HOST=0.0.0.0
 PORT=8000
 MODEL_NAME=CompVis/stable-diffusion-v1-1
 TORCH_DTYPE=float16
-DEVICE=cuda
+DEVICE=cpu   # Switch to "cuda" when deploying to a GPU-enabled host
 ```
+
+When `DEVICE` is set to `cuda`, the service will still fall back to CPU if no GPU is detected, so you can safely keep the default and override only when a GPU is available.
+
+> The backend keeps its virtual environment inside `api/.venv`. The helper scripts in `api/scripts` automatically create it if missing, so you can simply run `./scripts/start_server.sh` (bash) or `python scripts/start_server.py` without manually managing activation every time.
 
 ## Development
 

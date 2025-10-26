@@ -8,6 +8,13 @@ import {
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
+type ApiImageListItem = {
+  filename?: string;
+  path?: string;
+  url?: string;
+  created?: number;
+};
+
 class ApiClient {
   private baseUrl: string;
 
@@ -40,10 +47,15 @@ class ApiClient {
   async generateImage(
     request: ImageGenerationRequest
   ): Promise<ImageGenerationResponse> {
-    return this.request<ImageGenerationResponse>('/api/v1/generate', {
+    const result = await this.request<ImageGenerationResponse>('/api/v1/generate', {
       method: 'POST',
       body: JSON.stringify(request),
     });
+
+    return {
+      ...result,
+      ...this.buildImageMeta(result.image_path),
+    };
   }
 
   async getHealth(): Promise<HealthCheckResponse> {
@@ -51,12 +63,54 @@ class ApiClient {
   }
 
   async listImages(): Promise<ImageListItem[]> {
-    const response = await this.request<{images: ImageListItem[]}>('/api/v1/images');
-    return response.images || [];
+    const response = await this.request<{images: ApiImageListItem[]}>('/api/v1/images');
+    if (!response.images) {
+      return [];
+    }
+
+    const normalized = response.images
+      .map((image) => {
+        const filename = image.filename || this.extractFilename(image.path);
+        if (!filename) {
+          return null;
+        }
+
+        return {
+          filename,
+          url: image.url || this.getImageUrl(filename),
+          created: image.created ?? 0,
+        };
+      })
+      .filter((image): image is ImageListItem => image !== null)
+      .sort((a, b) => b.created - a.created);
+
+    return normalized;
   }
 
   getImageUrl(filename: string): string {
     return `${this.baseUrl}/api/v1/image/${filename}`;
+  }
+
+  private extractFilename(pathOrFilename?: string): string | null {
+    if (!pathOrFilename) {
+      return null;
+    }
+
+    const normalized = pathOrFilename.replace(/\\/g, '/').split('/').filter(Boolean);
+    const filename = normalized.pop();
+    return filename || null;
+  }
+
+  private buildImageMeta(imagePath?: string) {
+    const filename = this.extractFilename(imagePath);
+    if (!filename) {
+      return {};
+    }
+
+    return {
+      filename,
+      image_url: this.getImageUrl(filename),
+    };
   }
 }
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { generateImage } from '@/lib/api';
+import { generateImage, getImage } from '@/lib/api';
 import { ImageGenerationRequest, ImageGenerationResponse } from '@/types/api';
 import Link from 'next/link';
 
@@ -133,42 +133,50 @@ export default function GeneratePage() {
                 Generated Image
               </h2>
               
-              {image ? (
-                <div className="space-y-4">
-                  <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
-                    <img
-                      src={image.image_path}
-                      alt="Generated"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  
-                  <div className="space-y-2 text-sm text-gray-600">
-                    <div className="flex justify-between">
-                      <span>Seed:</span>
-                      <span className="font-mono">{image.seed_used}</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Generation Time:</span>
-                      <span>{image.generation_time.toFixed(2)}s</span>
-                    </div>
-                    <div className="flex justify-between">
-                      <span>Status:</span>
-                      <span className="text-green-600">✓ Success</span>
-                    </div>
-                  </div>
+              {image ? (() => {
+                const resolvedImageUrl =
+                  image.image_url ||
+                  (image.filename ? getImage(image.filename) : undefined);
 
-                  <div className="pt-4 border-t">
-                    <a
-                      href={image.image_path}
-                      download
-                      className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors text-center block"
-                    >
-                      Download Image
-                    </a>
+                return (
+                  <div className="space-y-4">
+                    <div className="aspect-square bg-gray-100 rounded-lg overflow-hidden">
+                      <img
+                        src={resolvedImageUrl ?? ''}
+                        alt="Generated"
+                        className="w-full h-full object-cover"
+                      />
+                    </div>
+                    
+                    <div className="space-y-2 text-sm text-gray-600">
+                      <div className="flex justify-between">
+                        <span>Seed:</span>
+                        <span className="font-mono">{image.seed_used}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Generation Time:</span>
+                        <span>{image.generation_time.toFixed(2)}s</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Status:</span>
+                        <span className="text-green-600">✓ Success</span>
+                      </div>
+                    </div>
+
+                    <div className="pt-4 border-t">
+                      {resolvedImageUrl && (
+                        <a
+                          href={resolvedImageUrl}
+                          download
+                          className="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors text-center block"
+                        >
+                          Download Image
+                        </a>
+                      )}
+                    </div>
                   </div>
-                </div>
-              ) : (
+                );
+              })() : (
                 <div className="aspect-square bg-gray-100 rounded-lg flex items-center justify-center">
                   <div className="text-center text-gray-500">
                     <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">

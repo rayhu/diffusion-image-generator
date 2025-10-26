@@ -14,6 +14,8 @@ export interface ImageGenerationResponse {
   image_path: string;
   generation_time: number;
   seed_used: number;
+  image_url?: string;
+  filename?: string;
 }
 
 export interface HealthCheckResponse {

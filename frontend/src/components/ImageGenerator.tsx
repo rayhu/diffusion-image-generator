@@ -34,12 +34,13 @@ export default function ImageGenerator({
 
     try {
       const response = await apiClient.generateImage(formData);
-      const imageUrl = apiClient.getImageUrl(
-        response.image_path.split('/').pop() || ''
-      );
+      const imageUrl = response.image_url || null;
+
       setGeneratedImage(imageUrl);
       setGenerationTime(response.generation_time);
-      onImageGenerated?.(imageUrl);
+      if (imageUrl) {
+        onImageGenerated?.(imageUrl);
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to generate image');
     } finally {

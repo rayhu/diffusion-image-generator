@@ -7,6 +7,17 @@ from pathlib import Path
 from pydantic_settings import BaseSettings
 
 
+_CURRENT_FILE = Path(__file__).resolve()
+API_ROOT = _CURRENT_FILE.parents[2]
+_candidate_repo_root = API_ROOT.parent
+REPO_ROOT = (
+    _candidate_repo_root
+    if (_candidate_repo_root / "api").exists() and (_candidate_repo_root / "frontend").exists()
+    else API_ROOT
+)
+ENV_FILE_PATH = API_ROOT / ".env"
+
+
 class Settings(BaseSettings):
     """Application settings."""
 
@@ -20,8 +31,9 @@ class Settings(BaseSettings):
     port: int = 8000
 
     # Paths
-    repo_root: Path = Path(__file__).parent.parent.parent
-    images_dir: Path = repo_root / "generated-images"
+    repo_root: Path = REPO_ROOT
+    api_root: Path = API_ROOT
+    images_dir: Path = API_ROOT / "generated-images"
 
     # Model settings
     model_name: str = "CompVis/stable-diffusion-v1-1"
@@ -35,7 +47,7 @@ class Settings(BaseSettings):
     default_guidance_scale: float = 7.5
 
     class Config:
-        env_file = ".env"
+        env_file = str(ENV_FILE_PATH)
         case_sensitive = False
 
 

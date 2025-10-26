@@ -8,6 +8,8 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
+    env_file:
+      - ./api/.env
     environment:
       - DEBUG=false
       - HOST=0.0.0.0
@@ -40,9 +42,11 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
+    env_file:
+      - ./frontend/.env
     environment:
       - NODE_ENV=development
-      - REACT_APP_API_URL=http://localhost:8000
+      - NEXT_PUBLIC_API_URL=http://localhost:8000
     depends_on:
       - api
     restart: unless-stopped
